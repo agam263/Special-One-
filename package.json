@@ -1,0 +1,14 @@
+{
+  "name": "makemepulse2019",
+  "version": "1.0.0",
+  "description": "Nomadic Tribe — makemepulse",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^3.0.5"
+  }
+}
