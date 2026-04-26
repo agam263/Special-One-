@@ -57,6 +57,10 @@
 
   <script src="./main.js"></script>
 
+  <div id="first-page-flower-container" style="position: fixed; top: 72%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; text-align: center; pointer-events: none; transition: opacity 0.5s ease-out;">
+    <img src="./assets/img/flower.png" alt="Bouquet" style="max-width: 75%; height: auto; max-height: 40vh;" />
+  </div>
+
   <div id="photos-container"></div>
   <style>
     #photos-container {
@@ -248,11 +252,50 @@
         let lastText = "";
         let heartsStarted = false;
         
+        // Start floating dark red hearts on the sides for the start page
+        let sideHeartsInterval = setInterval(() => {
+          for (let i = 0; i < 2; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'heart-bubble side-heart';
+            // One on the left (5-20vw), one on the right (80-95vw)
+            heart.style.left = (i === 0 ? Math.random() * 15 + 5 : Math.random() * 15 + 80) + 'vw';
+            heart.style.animationDuration = (Math.random() * 4 + 4) + 's';
+            heart.style.setProperty('--scale', Math.random() * 1.5 + 0.8);
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 8000);
+          }
+        }, 600);
+
+        // Hide flower and side hearts immediately upon any interaction (which starts the experience)
+        const hideFlower = () => {
+          clearInterval(sideHeartsInterval);
+          document.querySelectorAll('.side-heart').forEach(h => {
+            h.style.transition = "opacity 1s";
+            h.style.opacity = "0";
+            setTimeout(() => h.remove(), 1000);
+          });
+          
+          const flowerContainer = document.getElementById('first-page-flower-container');
+          if (flowerContainer && flowerContainer.style.opacity !== "0") {
+            flowerContainer.style.opacity = "0";
+            setTimeout(() => { if(flowerContainer) flowerContainer.remove(); }, 500);
+          }
+        };
+        window.addEventListener('mousedown', hideFlower, {once: true});
+        window.addEventListener('touchstart', hideFlower, {once: true});
+        
         window.GLXP.audio.onSubtitles.on((data) => {
           if (data.text && data.text !== lastText) {
             lastText = data.text;
             // Trigger photo animation when a new subtitle appears
             showFloatingPhoto();
+            
+            // Hide the flower on the first page once the experience starts
+            const flowerContainer = document.getElementById('first-page-flower-container');
+            if (flowerContainer && flowerContainer.style.opacity !== "0") {
+              flowerContainer.style.opacity = "0";
+              setTimeout(() => { if(flowerContainer) flowerContainer.remove(); }, 1000);
+            }
             
             // Start dark red heart bubbles on the last page when specific text appears
             if (!heartsStarted && (data.text.includes("Happy Birthday") || data.text.includes("Thank you for being you"))) {
