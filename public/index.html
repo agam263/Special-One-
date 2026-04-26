@@ -99,6 +99,53 @@
       transform: translate(-50%, -50%) translateY(-40px) scale(0.8);
       transition: opacity 1.2s ease-in, transform 1.5s ease-in;
     }
+    
+    .heart-bubble {
+      position: fixed;
+      bottom: -50px;
+      width: 20px;
+      height: 20px;
+      background-color: #8B0000; /* dark red */
+      transform: rotate(-45deg);
+      animation: floatUp 4s ease-in forwards;
+      z-index: 10000;
+      opacity: 0.8;
+      pointer-events: none;
+      --scale: 1;
+    }
+    .heart-bubble::before,
+    .heart-bubble::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: #8B0000;
+      border-radius: 50%;
+    }
+    .heart-bubble::before {
+      top: -10px;
+      left: 0;
+    }
+    .heart-bubble::after {
+      top: 0;
+      left: 10px;
+    }
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(var(--scale)) rotate(-45deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.8;
+      }
+      90% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-120vh) scale(var(--scale)) rotate(-45deg);
+        opacity: 0;
+      }
+    }
   </style>
 
   <script>
@@ -199,11 +246,29 @@
       if (window.GLXP && window.GLXP.audio && window.GLXP.audio.onSubtitles) {
         clearInterval(checkGLXP);
         let lastText = "";
+        let heartsStarted = false;
+        
         window.GLXP.audio.onSubtitles.on((data) => {
           if (data.text && data.text !== lastText) {
             lastText = data.text;
             // Trigger photo animation when a new subtitle appears
             showFloatingPhoto();
+            
+            // Start dark red heart bubbles on the last page when specific text appears
+            if (!heartsStarted && (data.text.includes("Happy Birthday") || data.text.includes("Thank you for being you"))) {
+              heartsStarted = true;
+              setInterval(() => {
+                for (let i = 0; i < 3; i++) {
+                  const heart = document.createElement('div');
+                  heart.className = 'heart-bubble';
+                  heart.style.left = (Math.random() * 90 + 5) + 'vw';
+                  heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                  heart.style.setProperty('--scale', Math.random() * 0.8 + 0.4);
+                  document.body.appendChild(heart);
+                  setTimeout(() => heart.remove(), 6000);
+                }
+              }, 200);
+            }
           } else if (!data.text) {
             lastText = "";
           }
