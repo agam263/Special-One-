@@ -142,6 +142,30 @@
       setTimeout(() => {
         photo.style.transform = `translate(-50%, -50%) translateY(0) scale(1) rotate(${rotation}deg)`;
         photo.classList.add('show');
+        
+        // FAKE A MOUSE DRAG TO SPAWN PROCEDURAL FLOWERS NEXT TO THE PHOTO!
+        const clientX = (parseFloat(pos.left) / 100) * window.innerWidth;
+        const clientY = (parseFloat(pos.top) / 100) * window.innerHeight;
+        
+        // Spawn slightly to the side/bottom of the photo
+        const startX = clientX + 80;
+        const startY = clientY + 80;
+        const endX = clientX + 160;
+        const endY = clientY - 80;
+        
+        const canvas = document.querySelector('canvas') || window;
+        // Start Drag
+        canvas.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: startX, clientY: startY, buttons: 1 }));
+        canvas.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: startX, clientY: startY, buttons: 1 }));
+        
+        // Complete Drag
+        setTimeout(() => {
+          canvas.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: endX, clientY: endY, buttons: 1 }));
+          setTimeout(() => {
+            canvas.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, clientX: endX, clientY: endY, buttons: 0 }));
+          }, 50);
+        }, 50);
+
       }, 50);
       
       // Remove after 5 seconds
