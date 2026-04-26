@@ -144,26 +144,34 @@
         photo.classList.add('show');
         
         // FAKE A MOUSE DRAG TO SPAWN PROCEDURAL FLOWERS NEXT TO THE PHOTO!
-        const clientX = (parseFloat(pos.left) / 100) * window.innerWidth;
-        const clientY = (parseFloat(pos.top) / 100) * window.innerHeight;
+        let startX = (parseFloat(pos.left) / 100) * window.innerWidth + 40;
+        let startY = (parseFloat(pos.top) / 100) * window.innerHeight + 40;
         
-        // Spawn slightly to the side/bottom of the photo
-        const startX = clientX + 80;
-        const startY = clientY + 80;
-        const endX = clientX + 160;
-        const endY = clientY - 80;
+        // Keep within bounds
+        startX = Math.min(startX, window.innerWidth - 100);
+        startY = Math.min(startY, window.innerHeight - 100);
         
-        const canvas = document.querySelector('canvas') || window;
-        // Start Drag
-        canvas.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: startX, clientY: startY, buttons: 1 }));
-        canvas.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: startX, clientY: startY, buttons: 1 }));
+        let endX = startX + 100;
+        let endY = startY - 100;
         
-        // Complete Drag
+        // The makemepulse engine listens on 'window' for pointer/mouse events.
+        const eventConfig = { bubbles: true, cancelable: true, clientX: startX, clientY: startY, buttons: 1, which: 1 };
+        window.dispatchEvent(new MouseEvent('mousedown', eventConfig));
+        
         setTimeout(() => {
-          canvas.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: endX, clientY: endY, buttons: 1 }));
+          eventConfig.clientX = startX + 20;
+          eventConfig.clientY = startY - 20;
+          window.dispatchEvent(new MouseEvent('mousemove', eventConfig));
+          
           setTimeout(() => {
-            canvas.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, clientX: endX, clientY: endY, buttons: 0 }));
-          }, 50);
+            eventConfig.clientX = endX;
+            eventConfig.clientY = endY;
+            window.dispatchEvent(new MouseEvent('mousemove', eventConfig));
+            
+            setTimeout(() => {
+              window.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: endX, clientY: endY, buttons: 0, which: 0 }));
+            }, 100);
+          }, 100);
         }, 50);
 
       }, 50);
